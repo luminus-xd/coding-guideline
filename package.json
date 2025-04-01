@@ -1,0 +1,18 @@
+{
+  "name": "coding-guideline",
+  "version": "1.0.0",
+  "description": "Luminusのコーディングガイドライン",
+  "main": "index.js",
+  "scripts": {
+    "dev": "mintlify dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luminus-xd/coding-guideline.git"
+  },
+  "author": "luminus-xd",
+  "bugs": {
+    "url": "https://github.com/luminus-xd/coding-guideline/issues"
+  },
+  "homepage": "https://github.com/luminus-xd/coding-guideline#readme"
+}

@@ -1,0 +1,369 @@
+---
+title: 'HTMLベストプラクティス'
+description: 'モダンなHTML開発のためのベストプラクティスガイド'
+---
+
+# HTMLベストプラクティス
+
+効率的で保守性の高いHTMLを書くためのベストプラクティスを紹介します。
+
+## セマンティックHTML
+
+適切な要素を使用することで、アクセシビリティと検索エンジン最適化（SEO）を向上させます。
+
+```html
+<!-- 悪い例 -->
+<div class="header">
+  <div class="nav">
+    <div class="nav-item">ホーム</div>
+  </div>
+</div>
+
+<!-- 良い例 -->
+<header>
+  <nav aria-label="メインナビゲーション">
+    <ul>
+      <li><a href="/">ホーム</a></li>
+    </ul>
+  </nav>
+</header>
+```
+
+## ランドマークと構造化
+
+Webページの主要な領域を特定するためにランドマーク要素とARIA属性を使用します。
+
+```html
+<!-- ヘッダー領域 -->
+<header>
+  <nav aria-label="メインナビゲーション">
+    <!-- ナビゲーションの内容 -->
+  </nav>
+</header>
+
+<!-- メインコンテンツ領域 -->
+<main id="main-content">
+  <h1>ページタイトル</h1>
+  <!-- メインコンテンツ -->
+</main>
+
+<!-- サイドバー / 補足情報 -->
+<aside aria-labelledby="sidebar-title">
+  <h2 id="sidebar-title">関連情報</h2>
+  <!-- サイドバーコンテンツ -->
+</aside>
+
+<!-- フッター領域 -->
+<footer>
+  <nav aria-label="フッターナビゲーション">
+    <!-- フッターナビゲーション -->
+  </nav>
+  <p>&copy; 2024 会社名</p>
+</footer>
+```
+
+## ナビゲーションの実装
+
+### 基本的なナビゲーション
+
+```html
+<nav aria-label="メインナビゲーション">
+  <ul>
+    <li><a href="/">ホーム</a></li>
+    <li><a href="/about">会社概要</a></li>
+    <li><a href="/services">サービス</a></li>
+    <li><a href="/contact">お問い合わせ</a></li>
+  </ul>
+</nav>
+```
+
+### パンくずリスト
+
+```html
+<nav aria-label="パンくずリスト" class="breadcrumb">
+  <ol>
+    <li>
+      <a href="/">ホーム</a>
+    </li>
+    <li>
+      <a href="/products">製品一覧</a>
+    </li>
+    <li>
+      <a href="" aria-current="page">製品詳細</a>
+    </li>
+  </ol>
+</nav>
+```
+
+### 現在のページの表示
+
+```html
+<nav aria-label="メインナビゲーション">
+  <ul>
+    <li><a href="/">ホーム</a></li>
+    <li><a href="/about">会社概要</a></li>
+    <li><a href="/services" aria-current="page">サービス</a></li>
+    <li><a href="/contact">お問い合わせ</a></li>
+  </ul>
+</nav>
+```
+
+## アクセシビリティ
+
+### ARIA属性の適切な使用
+
+ARIA属性は、HTMLの要素に追加の情報を提供するための属性です。
+適切でない乱用はかえって混乱を招くため避けましょう。
+
+```html
+<!-- 開閉可能なメニュー -->
+<button aria-label="メニューを開く" aria-expanded="false" aria-controls="nav-menu">
+  <span class="icon-menu" aria-hidden="true"></span>
+</button>
+
+<nav id="nav-menu" 
+  aria-label="メインメニュー"
+  hidden>
+  <ul>
+    <li><a href="/">ホーム</a></li>
+    <li><a href="/products">製品一覧</a></li>
+  </ul>
+</nav>
+```
+
+### アイコンと装飾的な要素
+
+```html
+<!-- 装飾的なアイコン（スクリーンリーダーから隠す） -->
+<span class="icon-star" aria-hidden="true"></span>
+
+<!-- 意味を持つアイコン（代替テキストを提供） -->
+<button>
+  <span class="icon-delete" aria-hidden="true"></span>
+  <span class="visually-hidden">削除</span>
+</button>
+
+<!-- CSSで指定する装飾的な画像 -->
+<div class="decorative-image" role="presentation"></div>
+```
+
+### フォーカス管理
+
+```html index.html
+<!-- フォーカス可能な要素のスキップ -->
+<a href="#main-content" class="skip-link">
+  メインコンテンツにスキップ
+</a>
+```
+```css style.css
+/* フォーカスの視覚的なフィードバック（CSSで実装） */
+a:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+  
+/* フォーカスリングの非表示（マウス操作時のみ） */
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+```
+
+### フォーム要素のラベル付け
+
+```html
+<!-- 悪い例 -->
+<input type="text" placeholder="ユーザー名">
+
+<!-- 良い例 -->
+<div class="form-group">
+  <label for="username">ユーザー名</label>
+  <input type="text" id="username" name="username" aria-describedby="username-help">
+  <div id="username-help" class="form-hint">
+    半角英数字で入力してください
+  </div>
+</div>
+
+<!-- グループ化の例 -->
+<fieldset>
+  <legend>お支払い方法</legend>
+  
+  <div class="form-check">
+    <input type="radio" id="credit" name="payment" value="credit">
+    <label for="credit">クレジットカード</label>
+  </div>
+  
+  <div class="form-check">
+    <input type="radio" id="bank" name="payment" value="bank">
+    <label for="bank">銀行振込</label>
+  </div>
+</fieldset>
+```
+
+## パフォーマンス最適化
+
+### 画像の最適化
+
+```html
+<!-- レスポンシブ画像 -->
+<picture>
+  <source srcset="image-large.webp" media="(min-width: 800px)" type="image/webp">
+  <source srcset="image-small.webp" type="image/webp">
+  <img src="image-fallback.jpg" alt="説明文" loading="lazy" width="800" height="600">
+</picture>
+```
+
+### リソースの遅延読み込み
+
+```html
+<!-- スクリプトの遅延読み込み -->
+<script src="app.js" defer></script>
+
+<!-- 画像の遅延読み込み -->
+<img src="image.jpg" loading="lazy" alt="説明文">
+
+<!-- プリロード -->
+<link rel="preload" href="critical.css" as="style">
+```
+
+## メタデータの最適化
+
+```html
+<head>
+  <!-- 基本的なメタデータ -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ページの説明">
+  
+  <!-- 言語設定 -->
+  <html lang="ja">
+  
+  <!-- OGP -->
+  <meta property="og:title" content="ページタイトル">
+  <meta property="og:description" content="ページの説明">
+  <meta property="og:image" content="ogp.jpg">
+  <meta property="og:url" content="https://example.com/page">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ページタイトル">
+</head>
+```
+
+## コンテンツの構造化
+
+### 見出しの適切な階層化
+
+```html
+<main>
+  <h1>会社概要</h1>
+  
+  <section aria-labelledby="mission">
+    <h2 id="mission">ミッション</h2>
+    <p>私たちの使命は...</p>
+    
+    <h3>コアバリュー</h3>
+    <p>私たちの価値観は...</p>
+  </section>
+  
+  <section aria-labelledby="history">
+    <h2 id="history">沿革</h2>
+    <p>当社の歴史は...</p>
+  </section>
+</main>
+```
+
+### リストの適切な使用
+
+```html
+<!-- 順序なしリスト -->
+<ul>
+  <li>項目1</li>
+  <li>項目2</li>
+</ul>
+
+<!-- 順序付きリスト -->
+<ol>
+  <li>手順1</li>
+  <li>手順2</li>
+</ol>
+
+<!-- 定義リスト -->
+<dl>
+  <dt>用語</dt>
+  <dd>用語の説明</dd>
+  
+  <dt>別の用語</dt>
+  <dd>別の用語の説明</dd>
+</dl>
+```
+
+## インタラクティブコンポーネント
+
+### アコーディオン（開閉パネル）
+
+```html
+<div class="accordion">
+  <h3>
+    <button aria-expanded="false" aria-controls="section1-content" id="section1-header">
+      セクション1
+    </button>
+  </h3>
+  <div id="section1-content" role="region" aria-labelledby="section1-header" hidden>
+    <p>セクション1の内容</p>
+  </div>
+</div>
+```
+
+### タブパネル
+
+```html
+<div class="tabs">
+  <div role="tablist" aria-label="製品情報">
+    <button role="tab" id="tab1" aria-selected="true" aria-controls="panel1">
+      概要
+    </button>
+    <button role="tab" id="tab2" aria-selected="false" aria-controls="panel2" tabindex="-1">
+      仕様
+    </button>
+  </div>
+
+  <div role="tabpanel" id="panel1" aria-labelledby="tab1">
+    <p>製品概要の内容...</p>
+  </div>
+
+  <div role="tabpanel" id="panel2" aria-labelledby="tab2" hidden>
+    <p>製品仕様の内容...</p>
+  </div>
+</div>
+```
+
+## ベストプラクティスチェックリスト
+
+1. セマンティックなHTML要素を使用する
+2. ランドマーク要素とARIA属性で文書構造を明確にする
+3. 適切なHTML5要素と属性でコンテンツの関係性を表現する
+4. 画像には必ず`alt`属性を設定する
+5. フォーム要素には常に`label`を関連付ける
+6. 適切な見出し階層を維持する（h1からh6を順番に使用）
+7. キーボードでのナビゲーションをサポートする
+8. フォーカスの順序と可視性を適切に管理する
+9. 装飾的な要素は`aria-hidden="true"`で隠す
+10. 複雑なコンポーネントはWAI-ARIAのパターンに従って実装する
+
+<Note>
+HTMLの構造は、アクセシビリティとSEOの両方に大きな影響を与えます。
+常にユーザーとクローラーの両方を意識した実装を心がけましょう。
+</Note>
+
+<Tip>
+開発時は[HTML Validator](https://validator.w3.org/)や[axe DevTools](https://www.deque.com/axe/)などの
+ツールを使用して、マークアップの品質とアクセシビリティを確認することをお勧めします。
+</Tip>
+
+## 参考リンク
+
+- [WAI-ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/)
+- [MDN Web Docs - HTML](https://developer.mozilla.org/ja/docs/Web/HTML)
+- [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/TR/WCAG21/)
+- [HTML Living Standard](https://html.spec.whatwg.org/multipage/)

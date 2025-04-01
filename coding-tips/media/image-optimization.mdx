@@ -1,0 +1,220 @@
+---
+title: '画像の最適化ベストプラクティス'
+description: 'Webサイトのパフォーマンスとユーザー体験を向上させる画像最適化テクニック'
+---
+
+
+ウェブサイトにおける画像の適切な最適化は、パフォーマンスとUXを大きく向上させます。
+
+## 画像フォーマットの選択
+
+目的に合った最適な画像フォーマットを選択することが重要です。
+
+### モダンフォーマットの活用
+
+```html
+<!-- 次世代フォーマットの使用例 -->
+<picture>
+  <source srcset="image.avif" type="image/avif">
+  <source srcset="image.webp" type="image/webp">
+  <img src="image.jpg" alt="説明文" width="800" height="600">
+</picture>
+```
+
+<Tip>
+WebPはほとんどのモダンブラウザでサポートされており、JPEGと比較して30%程度のファイルサイズ削減が期待できます。
+AVIFはさらに優れた圧縮率を提供しますが、ブラウザサポートはWebPより限定的です。
+</Tip>
+
+### 用途別の推奨フォーマット
+
+| コンテンツタイプ | 推奨フォーマット | 代替フォーマット |
+|----------------|----------------|----------------|
+| 写真 | AVIF, WebP | JPEG |
+| アイコン、ロゴ | SVG | WebP, PNG |
+| アニメーション | WebP | GIF |
+| 透過が必要な画像 | WebP, PNG | PNG-8 |
+
+## レスポンシブ画像
+
+デバイスのサイズに応じて適切な画像を提供することで、帯域幅を節約します。
+
+```html
+<img 
+  srcset="small.jpg 400w, medium.jpg 800w, large.jpg 1200w" 
+  sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
+  src="fallback.jpg" 
+  alt="説明文">
+```
+
+### アートディレクション
+
+画面サイズによって、異なるアスペクト比や構図の画像を表示できます。
+
+```html
+<picture>
+  <source media="(max-width: 600px)" srcset="mobile-crop.jpg">
+  <source media="(max-width: 1200px)" srcset="tablet-crop.jpg">
+  <img src="desktop.jpg" alt="説明文">
+</picture>
+```
+
+## 遅延読み込み
+
+ビューポート外の画像を遅延読み込みすることで、初期ロード時間を短縮します。
+
+```html
+<!-- ネイティブ遅延読み込み -->
+<img src="image.jpg" loading="lazy" alt="説明文">
+
+<!-- Intersection Observer APIを使用した遅延読み込み -->
+<img data-src="image.jpg" class="lazy" alt="説明文">
+```
+
+```javascript
+// JavaScript実装例
+document.addEventListener("DOMContentLoaded", function() {
+  const lazyImages = document.querySelectorAll("img.lazy");
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src;
+        observer.unobserve(img);
+      }
+    });
+  });
+  
+  lazyImages.forEach(img => observer.observe(img));
+});
+```
+
+## 画像のサイズ最適化
+
+### 適切なサイズ指定
+
+```html
+<!-- 画像サイズの明示によるCLSの防止 -->
+<img 
+  src="image.jpg" 
+  width="800" 
+  height="600" 
+  alt="説明文">
+```
+
+<Note>
+`width`と`height`属性を指定することで、Cumulative Layout Shift (CLS)を防止できます。
+これにより、画像が読み込まれる前にブラウザが適切なスペースを確保できます。
+</Note>
+
+### 画像CDNの活用
+
+```html
+<!-- Cloudinaryの例 -->
+<img 
+  src="https://res.cloudinary.com/example/image/upload/w_800,q_auto,f_auto/sample.jpg" 
+  alt="説明文">
+```
+
+URLパラメータを使って、動的に画像を変換できます：
+- `w_800`: 幅800pxに変換
+- `q_auto`: 品質の自動最適化
+- `f_auto`: フォーマットの自動選択
+
+## アクセシビリティ対応
+
+```html
+<!-- 良い例 -->
+<img 
+  src="chart.png" 
+  alt="2023年度の四半期売上グラフ: Q1: 100万円、Q2: 150万円、Q3: 120万円、Q4: 200万円" 
+  width="600" 
+  height="400">
+
+<!-- 装飾的な画像 -->
+<img 
+  src="decorative.jpg" 
+  alt="" 
+  role="presentation" 
+  width="300" 
+  height="200">
+```
+
+### SVG画像のアクセシビリティ
+
+```html
+<svg role="img" aria-labelledby="chart-title chart-desc">
+  <title id="chart-title">売上チャート</title>
+  <desc id="chart-desc">2023年度の四半期ごとの売上推移グラフ</desc>
+  <!-- SVGの内容 -->
+</svg>
+```
+
+## 画像の表示管理
+
+### object-fit の活用
+
+```css
+/* アスペクト比を維持して、コンテナにフィットさせる */
+.thumbnail {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 複数画像の均一表示 */
+.gallery-item img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+```
+
+### アスペクト比の維持
+
+```css
+/* モダンなアプローチ */
+.aspect-ratio-box {
+  aspect-ratio: 16 / 9;
+}
+
+/* 代替手法 */
+.aspect-ratio-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9のアスペクト比 */
+}
+.aspect-ratio-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+```
+
+## パフォーマンスチェックリスト
+
+1. モダンフォーマット（WebP/AVIF）を使用する
+2. レスポンシブ画像技術を活用する
+3. ファイルサイズを最適化する（必要以上に大きな画像を避ける）
+4. 遅延読み込みを実装する
+5. 画像のサイズを明示する（width/height属性）
+6. 画像を圧縮する（lossyまたはlossless）
+7. キャッシュ戦略を適用する
+
+## 便利なツールとリソース
+
+- [Squoosh](https://squoosh.app/) - 高度な画像圧縮ツール
+- [TinyPNG](https://tinypng.com/) - PNGとJPEG圧縮
+- [SVGOMG](https://jakearchibald.github.io/svgomg/) - SVG最適化
+- [Cloudinary](https://cloudinary.com/) - 画像CDNと変換サービス
+- [ImageOptim](https://imageoptim.com/) - デスクトップ用の画像最適化アプリ
+
+<Note>
+画像最適化はウェブパフォーマンスの中でも、比較的少ない労力で大きな改善が見込める領域です。
+特に大きな画像を多用するサイトでは、最適化による効果が顕著に現れます。
+</Note> 

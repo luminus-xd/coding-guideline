@@ -1,0 +1,296 @@
+---
+title: '動画実装のベストプラクティス'
+description: 'Webサイトにおける動画コンテンツの効果的な実装と最適化手法'
+---
+
+# 動画実装のベストプラクティス
+
+ウェブサイトにおける動画コンテンツは魅力的ですが、パフォーマンスとアクセシビリティに配慮した実装が重要です。
+
+## 基本的な動画の埋め込み
+
+### HTML5 Videoの使用
+
+```html
+<video controls width="640" height="360" poster="thumbnail.jpg" preload="none">
+  <source src="video.webm" type="video/webm">
+  <source src="video.mp4" type="video/mp4">
+  <p>お使いのブラウザは動画タグをサポートしていません。<a href="video.mp4">動画をダウンロード</a>してご覧ください。</p>
+</video>
+```
+
+<Note>
+複数のソースフォーマットを提供すると、ブラウザが対応している最適なフォーマットを選択できます。
+WebMはより効率的な圧縮を提供しますが、すべてのブラウザでサポートされているわけではありません。
+</Note>
+
+### 主要な属性
+
+- `controls` - 再生、一時停止、シークなどのコントロールを表示
+- `width` & `height` - 動画のサイズを指定（CLSを防止）
+- `poster` - 再生前に表示するサムネイル画像
+- `preload` - 先読みの挙動を制御（`none`, `metadata`, `auto`）
+- `autoplay` - 自動再生（ユーザーエクスペリエンスを考慮して慎重に使用）
+- `muted` - 音声をミュート（autoplayと組み合わせて使用することが多い）
+- `loop` - 繰り返し再生
+- `playsinline` - iOSデバイスでインライン再生（全画面表示を防止）
+
+## パフォーマンス最適化
+
+### 動画コーデックと圧縮
+
+```html
+<video controls width="640" height="360">
+  <source src="video.av1.mp4" type="video/mp4; codecs=av01.0.05M.08">
+  <source src="video.vp9.webm" type="video/webm; codecs=vp9">
+  <source src="video.h264.mp4" type="video/mp4">
+</video>
+```
+
+推奨コーデック（効率順）：
+1. AV1 - 最新の高効率コーデック（ブラウザサポートは限定的）
+2. VP9/WebM - Googleが開発したオープンソースコーデック
+3. H.264/MP4 - 広くサポートされた標準的なコーデック
+
+### 遅延読み込み
+
+```html
+<div class="video-container" data-video-src="video.mp4">
+  <img src="thumbnail.jpg" alt="動画のサムネイル">
+  <button class="play-button" aria-label="動画を再生">▶</button>
+</div>
+```
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+  const videoContainers = document.querySelectorAll('.video-container');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const container = entry.target;
+        const videoSrc = container.dataset.videoSrc;
+        
+        container.innerHTML = `
+          <video controls width="640" height="360">
+            <source src="${videoSrc}" type="video/mp4">
+          </video>
+        `;
+        
+        observer.unobserve(container);
+      }
+    });
+  }, { rootMargin: '100px' });
+  
+  videoContainers.forEach(container => {
+    container.querySelector('.play-button').addEventListener('click', () => {
+      const videoSrc = container.dataset.videoSrc;
+      
+      container.innerHTML = `
+        <video controls width="640" height="360" autoplay>
+          <source src="${videoSrc}" type="video/mp4">
+        </video>
+      `;
+      
+      observer.unobserve(container);
+    });
+    
+    observer.observe(container);
+  });
+});
+```
+
+### アダプティブストリーミング
+
+DASH（Dynamic Adaptive Streaming over HTTP）やHLS（HTTP Live Streaming）を使用して、ネットワーク環境に応じた品質の動画を提供します。
+
+```html
+<video id="video" controls width="640" height="360"></video>
+
+<script src="hls.min.js"></script>
+<script>
+  const video = document.getElementById('video');
+  const videoSrc = 'playlist.m3u8';
+  
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(videoSrc);
+    hls.attachMedia(video);
+  } 
+  else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // ネイティブHLSをサポートするiOSデバイス向け
+    video.src = videoSrc;
+  }
+</script>
+```
+
+## アクセシビリティ
+
+### 字幕と転写テキスト
+
+```html
+<video controls width="640" height="360">
+  <source src="video.mp4" type="video/mp4">
+  <track kind="subtitles" src="captions.ja.vtt" srclang="ja" label="日本語" default>
+  <track kind="subtitles" src="captions.en.vtt" srclang="en" label="English">
+  <track kind="descriptions" src="descriptions.vtt" srclang="ja" label="音声解説">
+</video>
+```
+
+WebVTT（Web Video Text Tracks）フォーマットの例：
+
+```
+WEBVTT
+
+00:00:01.000 --> 00:00:04.000
+こんにちは、今日はウェブ動画のアクセシビリティについて解説します。
+
+00:00:04.500 --> 00:00:09.000
+字幕は聴覚障害のある方や、音声をオンにできない環境の方にとって重要です。
+```
+
+### キーボード操作とスクリーンリーダー対応
+
+```html
+<div class="video-player">
+  <video id="my-video" width="640" height="360">
+    <source src="video.mp4" type="video/mp4">
+  </video>
+  
+  <div class="custom-controls" aria-label="動画コントロール">
+    <button id="play-pause" aria-label="再生" aria-pressed="false">▶</button>
+    
+    <div class="progress-bar">
+      <div role="slider" aria-label="シークバー" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"></div>
+    </div>
+    
+    <button id="mute" aria-label="ミュート">🔊</button>
+    
+    <div class="volume-control">
+      <div role="slider" aria-label="音量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" tabindex="0"></div>
+    </div>
+    
+    <button id="fullscreen" aria-label="全画面表示">⛶</button>
+  </div>
+</div>
+```
+
+## 背景動画
+
+```html
+<section class="hero-section">
+  <video autoplay loop muted playsinline aria-hidden="true" disablePictureInPicture>
+    <source src="background.webm" type="video/webm">
+    <source src="background.mp4" type="video/mp4">
+  </video>
+  
+  <hgroup class="hero-title">
+    <h1>コンテンツタイトル</h1>
+    <p>重要なコンテンツは動画の上に表示します</p>
+  </hgroup>
+</section>
+```
+
+```css
+.hero-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hero-section video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  /* その他のスタイリング */
+}
+```
+
+<Note>
+背景動画を使用する場合は、必ず`muted`と`autoplay`を組み合わせてください。
+また、コントラスト比を確保し、動画上のテキストが読みやすいようにしてください。
+</Note>
+
+## レスポンシブ動画
+
+### 基本的なレスポンシブ対応
+
+```html
+<div class="video-wrapper">
+  <video controls>
+    <source src="video.mp4" type="video/mp4">
+  </video>
+</div>
+```
+
+```css
+.video-wrapper {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+}
+```
+
+## 外部プラットフォームの埋め込み
+
+外部プラットフォームを埋め込む場合、パフォーマンスとプライバシーへの影響を考慮してください。
+また、可能であれば、ユーザーのアクションに応じて動画を読み込む遅延読み込み手法を検討してください。
+
+### YouTube
+
+```html
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="YouTubeビデオ" frameborder="0" allowfullscreen></iframe>
+```
+
+<Note>
+YouTubeのプライバシー強化モードを使用することで、ユーザーのデータを収集しないようにすることができます。
+
+また、`rel="0"`を併用して設定することで、現状（2025年4月1日）では動画終了後のおすすめ動画を非表示にすることができます。
+</Note>
+
+### Vimeo
+
+```html
+<iframe width="640" height="360" src="https://player.vimeo.com/video/VIDEO_ID?dnt=1" title="Vimeoビデオ" frameborder="0" allowfullscreen></iframe>
+```
+
+## パフォーマンスとアクセシビリティのチェックリスト
+
+1. 適切なコーデックとフォーマットを使用する
+2. `preload="none"`または`preload="metadata"`を使用して不要な先読みを防止する
+3. 必要に応じて遅延読み込みを実装する
+4. 字幕と代替テキストを提供する
+5. キーボード操作に対応する
+6. 自動再生は控えめに使用する（特に音声付きの場合）
+7. `width`と`height`属性を設定してCLSを防止する
+8. レスポンシブデザインに対応させる
+9. コントラスト比と可読性を確保する
+10. ユーザーのネットワーク環境に応じたアダプティブストリーミングを検討する
+
+## 便利なツールとリソース
+
+- [HandBrake](https://handbrake.fr/) - オープンソースの動画変換ツール
+- [FFmpeg](https://ffmpeg.org/) - 動画処理のコマンドラインツール
+- [Shaka Player](https://github.com/google/shaka-player) - アダプティブストリーミングプレーヤー
+- [Video.js](https://videojs.com/) - カスタマイズ可能なHTML5ビデオプレーヤー
+- [WebVTT検証ツール](https://quuz.org/webvtt/) - 字幕ファイルの検証
+- [Media Accessibility Guidelines](https://www.w3.org/WAI/media/av/) - W3Cのメディアアクセシビリティガイドライン
+
+<Tip>
+動画コンテンツは帯域幅を大量に消費するため、必要な場合のみ使用し、
+代替としてアニメーションGIFの代わりにanimated WebPやCSS/SVGアニメーションの使用も検討してください。
+</Tip> 

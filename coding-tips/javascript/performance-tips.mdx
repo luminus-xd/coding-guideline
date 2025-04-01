@@ -1,0 +1,272 @@
+---
+title: 'パフォーマンス最適化'
+description: 'アプリケーションのパフォーマンスを向上させるためのベストプラクティス'
+---
+
+## バンドルサイズの最適化
+
+### Tree Shaking
+
+不要なコードを削除するTree Shakingを効果的に活用します。
+
+```javascript
+// 悪い例：すべてをインポート
+import * as lodash from 'lodash';
+
+// 良い例：必要な関数のみをインポート
+import { debounce } from 'lodash-es';
+```
+
+### 動的インポート
+
+必要なタイミングでコードを読み込むことで、初期ロード時間を短縮します。
+
+```javascript
+// 通常のインポート
+import { heavyFunction } from './heavy-module';
+
+// 動的インポート
+async function loadWhenNeeded() {
+  const { heavyFunction } = await import('./heavy-module');
+  heavyFunction();
+}
+
+button.addEventListener('click', loadWhenNeeded);
+```
+
+## メモリ管理
+
+### メモリリーク防止
+
+```javascript
+class EventManager {
+  constructor() {
+    this.handleClick = this.handleClick.bind(this);
+    document.addEventListener('click', this.handleClick);
+  }
+
+  handleClick() {
+    // イベント処理
+  }
+
+  // クリーンアップを忘れずに
+  destroy() {
+    document.removeEventListener('click', this.handleClick);
+  }
+}
+```
+
+### WeakMapとWeakSetの活用
+
+```javascript
+// メモリリークの可能性あり
+const cache = new Map();
+
+// メモリ効率の良い実装
+const cache = new WeakMap();
+
+function processUser(user) {
+  if (cache.has(user)) {
+    return cache.get(user);
+  }
+  const result = expensiveOperation(user);
+  cache.set(user, result);
+  return result;
+}
+```
+
+## DOM操作の最適化
+
+### バッチ処理
+
+```javascript
+// 悪い例：個別のDOM操作
+items.forEach(item => {
+  const div = document.createElement('div');
+  div.textContent = item;
+  container.appendChild(div);
+});
+
+// 良い例：DocumentFragmentの使用
+const fragment = document.createDocumentFragment();
+items.forEach(item => {
+  const div = document.createElement('div');
+  div.textContent = item;
+  fragment.appendChild(div);
+});
+container.appendChild(fragment);
+```
+
+### 仮想DOM
+
+```javascript
+// 仮想DOMの基本的な実装例
+class VirtualDOM {
+  static createElement(type, props, ...children) {
+    return { type, props, children };
+  }
+
+  static render(vnode, container) {
+    if (typeof vnode === 'string') {
+      container.appendChild(document.createTextNode(vnode));
+      return;
+    }
+
+    const element = document.createElement(vnode.type);
+    Object.entries(vnode.props || {}).forEach(([name, value]) => {
+      element.setAttribute(name, value);
+    });
+
+    vnode.children.forEach(child => this.render(child, element));
+    container.appendChild(element);
+  }
+}
+```
+
+## イベント処理の最適化
+
+### デバウンスとスロットル
+
+```javascript
+// デバウンス
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// スロットル
+function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// 使用例
+const optimizedScroll = debounce(() => {
+  // スクロール処理
+}, 250);
+
+window.addEventListener('scroll', optimizedScroll);
+```
+
+## 非同期処理の最適化
+
+### Promise.allとPromise.allSettled
+
+```javascript
+// 並列実行
+async function fetchAllData() {
+  try {
+    const [users, posts, comments] = await Promise.all([
+      fetchUsers(),
+      fetchPosts(),
+      fetchComments()
+    ]);
+    return { users, posts, comments };
+  } catch (error) {
+    console.error('一つでも失敗すると全体が失敗:', error);
+  }
+}
+
+// エラーハンドリング付き並列実行
+async function fetchAllDataSafely() {
+  const results = await Promise.allSettled([
+    fetchUsers(),
+    fetchPosts(),
+    fetchComments()
+  ]);
+  
+  return results.map(result => {
+    if (result.status === 'fulfilled') {
+      return result.value;
+    }
+    console.error('個別のエラー:', result.reason);
+    return null;
+  });
+}
+```
+
+## Web Workersの活用
+
+```javascript
+// メインスレッド
+const worker = new Worker('worker.js');
+
+worker.postMessage({ data: complexData });
+worker.onmessage = (event) => {
+  console.log('処理結果:', event.data);
+};
+
+// worker.js
+self.onmessage = (event) => {
+  const result = performHeavyCalculation(event.data);
+  self.postMessage(result);
+};
+```
+
+## キャッシュ戦略
+
+### メモ化
+
+```javascript
+function memoize(fn) {
+  const cache = new Map();
+  
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+// 使用例
+const expensiveFunction = memoize((n) => {
+  // 重い計算
+  return n * n;
+});
+```
+
+## パフォーマンス計測
+
+```javascript
+// パフォーマンス計測
+console.time('処理時間');
+
+// 処理内容
+for (let i = 0; i < 1000000; i++) {
+  // 重い処理
+}
+
+console.timeEnd('処理時間');
+
+// メモリ使用量
+const used = process.memoryUsage();
+console.log(`Memory usage: ${Math.round(used.heapUsed / 1024 / 1024 * 100) / 100} MB`);
+```
+
+<Note>
+パフォーマンス最適化は、実際の測定に基づいて行うことが重要です。
+プロファイリングツールを使用して、本当にボトルネックとなっている箇所を特定してください。
+</Note>
+
+<Tip>
+過度な最適化は避け、コードの可読性とのバランスを取ることを推奨します。
+最適化が必要な箇所は、通常、アプリケーション全体の20%程度です。
+</Tip> 

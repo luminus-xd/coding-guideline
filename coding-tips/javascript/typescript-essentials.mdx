@@ -1,0 +1,238 @@
+---
+title: 'TypeScriptエッセンシャルガイド'
+description: 'TypeScriptの重要な機能と効果的な使用方法'
+---
+
+## 型の基本
+
+### リテラル型
+
+特定の値のみを許可する型を定義できます。
+
+```typescript
+type Theme = 'light' | 'dark';
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+const theme: Theme = 'light'; // OK
+const status: Status = 'pending'; // エラー
+```
+
+### ジェネリクス
+
+再利用可能な型定義を作成できます。
+
+```typescript
+interface Response<T> {
+  data: T;
+  status: number;
+}
+
+// 使用例
+interface User {
+  id: number;
+  name: string;
+}
+
+const response: Response<User> = {
+  data: { id: 1, name: "山田太郎" },
+  status: 200
+};
+```
+
+## 高度な型機能
+
+### 型ガード
+
+型の絞り込みを行うカスタム関数を定義できます。
+
+```typescript
+interface Bird {
+  type: 'bird';
+  flyingSpeed: number;
+}
+
+interface Horse {
+  type: 'horse';
+  runningSpeed: number;
+}
+
+type Animal = Bird | Horse;
+
+function isBird(animal: Animal): animal is Bird {
+  return animal.type === 'bird';
+}
+
+function getSpeed(animal: Animal) {
+  if (isBird(animal)) {
+    return animal.flyingSpeed; // Bird型として認識される
+  }
+  return animal.runningSpeed; // Horse型として認識される
+}
+```
+
+### Mapped Types
+
+既存の型から新しい型を生成できます。
+
+```typescript
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+};
+
+interface Todo {
+  title: string;
+  description: string;
+}
+
+const todo: Readonly<Todo> = {
+  title: "TypeScriptの学習",
+  description: "Mapped Typesについて学ぶ"
+};
+
+todo.title = "変更"; // エラー：読み取り専用プロパティ
+```
+
+## 実践的なパターン
+
+### 非同期処理の型安全性
+
+Promiseの型定義を活用します。
+
+```typescript
+async function fetchUser<T>(id: number): Promise<T> {
+  const response = await fetch(`/api/users/${id}`);
+  if (!response.ok) {
+    throw new Error('User not found');
+  }
+  return response.json();
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// 使用例
+const user = await fetchUser<User>(1);
+console.log(user.name); // 型安全
+```
+
+### Utility Types
+
+TypeScriptの組み込みユーティリティ型を活用します。
+
+```typescript
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  published: boolean;
+}
+
+// 部分的な型
+type PostPreview = Pick<Post, 'id' | 'title'>;
+
+// オプショナルな型
+type PartialPost = Partial<Post>;
+
+// 読み取り専用の型
+type ReadonlyPost = Readonly<Post>;
+
+// プロパティを除外した型
+type PostWithoutContent = Omit<Post, 'content'>;
+```
+
+## エラー処理
+
+### Result型パターン
+
+エラーハンドリングを型安全に行います。
+
+```typescript
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+async function fetchData(): Promise<Result<string[]>> {
+  try {
+    const response = await fetch('/api/data');
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error : new Error('Unknown error')
+    };
+  }
+}
+
+// 使用例
+const result = await fetchData();
+if (result.success) {
+  console.log(result.data); // string[]型として認識
+} else {
+  console.error(result.error); // Error型として認識
+}
+```
+
+## パフォーマンス最適化
+
+### 条件付き型
+
+型の条件分岐を使用して、より柔軟な型定義を実現します。
+
+```typescript
+type IsArray<T> = T extends any[] ? true : false;
+type IsString<T> = T extends string ? true : false;
+
+// 使用例
+type CheckArray = IsArray<string[]>; // true
+type CheckString = IsString<"hello">; // true
+```
+
+### インデックス型
+
+オブジェクトのプロパティに対する型安全なアクセスを実現します。
+
+```typescript
+interface APIResponse {
+  user: {
+    id: number;
+    name: string;
+  };
+  settings: {
+    theme: string;
+    notifications: boolean;
+  };
+}
+
+function get<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const api: APIResponse = {
+  user: { id: 1, name: "ユーザー" },
+  settings: { theme: "dark", notifications: true }
+};
+
+const user = get(api, "user"); // 型推論が効く
+```
+
+<Note>
+TypeScriptの型システムは強力ですが、過度に複雑な型定義は避けるべきです。
+可読性とメンテナンス性のバランスを考慮してください。
+</Note>
+
+## ベストプラクティス
+
+1. 明示的な型アノテーションは必要な場合のみ使用する
+2. `any`型の使用は可能な限り避ける
+3. 共通の型定義は集中管理する
+4. インターフェースの継承は慎重に行う
+5. 型ガードを活用してコードの安全性を高める
+
+<Tip>
+TypeScriptの設定（`tsconfig.json`）は、プロジェクトの要件に応じて適切に調整してください。
+特に`strict`モードの使用を推奨します。
+</Tip> 

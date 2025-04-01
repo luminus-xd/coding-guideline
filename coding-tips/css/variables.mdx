@@ -1,0 +1,187 @@
+---
+title: 'CSS変数の効果的な使用方法'
+description: 'CSSカスタムプロパティを活用したモダンなスタイリング手法'
+---
+
+# CSS変数（カスタムプロパティ）
+
+CSS変数を効果的に使用することで、保守性の高い柔軟なスタイリングが可能になります。
+
+## 基本的な使い方
+
+CSS変数は`--`プレフィックスで定義し、`var()`関数で使用します。
+
+```css
+:root {
+  --primary-color: #16A34A;
+  --secondary-color: #15803D;
+  --text-color: #333333;
+  --spacing-unit: 8px;
+}
+
+.button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+}
+```
+
+## スコープと継承
+
+CSS変数はカスケーディングに従い、より具体的なセレクタで上書きできます。
+
+```css
+/* グローバルスコープ */
+:root {
+  --theme-color: blue;
+}
+
+/* 特定のコンポーネントでの上書き */
+.card {
+  --theme-color: green;
+}
+
+/* 変数の使用 */
+.element {
+  color: var(--theme-color);
+}
+```
+
+## フォールバック値
+
+変数が定義されていない場合のフォールバック値を指定できます。
+
+```css
+.element {
+  /* 変数が未定義の場合は#333が使用される */
+  color: var(--undefined-color, #333);
+}
+```
+
+## メディアクエリでの活用
+
+レスポンシブデザインにおいて、メディアクエリ内で変数を再定義できます。
+
+```css
+:root {
+  --container-width: 1200px;
+  --font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-width: 100%;
+    --font-size: 14px;
+  }
+}
+
+.container {
+  max-width: var(--container-width);
+  font-size: var(--font-size);
+}
+```
+
+## テーマ切り替えへの応用
+
+ダークモードなどのテーマ切り替えに効果的です。
+
+```css
+/* ライトモード（デフォルト） */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+}
+
+/* ダークモード */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #333333;
+    --text-color: #ffffff;
+  }
+}
+
+/* または、クラスベースでの切り替え */
+.dark-theme {
+  --bg-color: #333333;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+```
+
+## 計算と組み合わせ
+
+CSS変数は`calc()`関数と組み合わせて使用できます。
+
+```css
+:root {
+  --base-size: 16px;
+  --scale-ratio: 1.2;
+}
+
+h1 { font-size: calc(var(--base-size) * var(--scale-ratio) * 2); }
+h2 { font-size: calc(var(--base-size) * var(--scale-ratio) * 1.5); }
+h3 { font-size: calc(var(--base-size) * var(--scale-ratio)); }
+```
+
+## JavaScriptとの連携
+
+CSS変数はJavaScriptから操作可能です。
+
+```javascript
+// CSS変数の取得
+const root = document.documentElement;
+const primaryColor = getComputedStyle(root)
+  .getPropertyValue('--primary-color');
+
+// CSS変数の設定
+root.style.setProperty('--primary-color', '#ff0000');
+```
+
+## ベストプラクティス
+
+1. **命名規則の統一**
+```css
+/* 推奨される命名パターン */
+--component-name-property-state
+--button-background-hover
+--card-padding-large
+```
+
+2. **変数のグループ化**
+```css
+:root {
+  /* カラー */
+  --color-primary: #16A34A;
+  --color-secondary: #15803D;
+  
+  /* スペーシング */
+  --spacing-small: 4px;
+  --spacing-medium: 8px;
+  --spacing-large: 16px;
+  
+  /* タイポグラフィ */
+  --font-size-base: 16px;
+  --font-size-large: 24px;
+  --font-weight-bold: 700;
+}
+```
+
+3. **コンポーネントスコープの活用**
+```css
+.card {
+  --card-padding: 16px;
+  --card-border-radius: 8px;
+  
+  padding: var(--card-padding);
+  border-radius: var(--card-border-radius);
+}
+```
+
+<Note>
+CSS変数は、IEを除くすべてのモダンブラウザでサポートされています。
+IE11をサポートする必要がある場合は、ポリフィルの使用を検討してください。
+</Note> 

@@ -1,24 +1,53 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "maple",
+  "name": "Luminus Docs",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
   "favicon": "/favicon.svg",
+  "fonts": {
+    "family": "Inter"
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Web Coding Tips",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Base",
             "pages": [
-              "introduction",
-              "quickstart",
-              "development"
+              "coding-tips/introduction"
+            ]
+          },
+          {
+            "group": "HTML",
+            "pages": [
+              "coding-tips/html/best-practices",
+              "coding-tips/html/modern-features"
+            ]
+          },
+          {
+            "group": "CSS",
+            "pages": [
+              "coding-tips/css/variables",
+              "coding-tips/css/modern-layout"
+            ]
+          },
+          {
+            "group": "JavaScript",
+            "pages": [
+              "coding-tips/javascript/typescript-essentials",
+              "coding-tips/javascript/performance-tips"
+            ]
+          },
+          {
+            "group": "Media",
+            "pages": [
+              "coding-tips/media/image-optimization",
+              "coding-tips/media/video-best-practices"
             ]
           },
           {
@@ -35,7 +64,7 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "Music",
         "groups": [
           {
             "group": "API Documentation",
@@ -63,21 +92,16 @@
           "icon": "book-open-cover"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
           "anchor": "Blog",
           "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "icon": "twitter"
         }
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/icon.jpg",
+    "dark": "/logo/icon.jpg"
   },
   "navbar": {
     "links": [
@@ -94,9 +118,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/midnight_dev2",
+      "github": "https://github.com/luminus-xd"
     }
   }
 }

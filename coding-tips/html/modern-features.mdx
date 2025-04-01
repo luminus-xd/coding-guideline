@@ -1,0 +1,116 @@
+---
+title: 'モダンHTML機能ガイド'
+description: '最新のHTML仕様と新機能の解説'
+---
+
+# モダンHTML機能
+
+最新のHTML仕様には、多くの便利な新機能が追加されています。このガイドでは、特に重要な新機能について解説します。
+
+## Popover API
+
+Popover APIを使用すると、JavaScriptを使用せずにポップオーバーUIを実装できます。
+
+```html
+<button popovertarget="my-popover">ポップオーバーを開く</button>
+<div id="my-popover" popover>
+  <p>ポップオーバーの内容</p>
+  <button popovertarget="my-popover" popovertargetaction="hide">閉じる</button>
+</div>
+```
+
+<Note>
+現時点では、すべてのブラウザでサポートされているわけではありません。必要に応じてポリフィルの使用を検討してください。
+</Note>
+
+## Dialog要素
+
+`<dialog>`要素を使用することで、モーダルやダイアログを簡単に実装できます。
+
+```html
+<dialog id="my-dialog">
+  <h2>ダイアログのタイトル</h2>
+  <p>ダイアログの内容</p>
+  <form method="dialog">
+    <button>閉じる</button>
+  </form>
+</dialog>
+
+<button onclick="document.getElementById('my-dialog').showModal()">
+  ダイアログを開く
+</button>
+```
+
+## Invoker API
+
+Invoker APIを使用すると、要素のクリックイベントを別の要素にリダイレクトできます。
+
+```html
+<button invoketarget="my-button">
+  このボタンをクリックすると
+</button>
+<button id="my-button">
+  このボタンがクリックされたことになります
+</button>
+```
+
+## Input要素の新しい属性
+
+### `inputmode`属性
+
+モバイルデバイスで適切なキーボードを表示するために使用します。
+
+```html
+<input inputmode="numeric" type="text" placeholder="数字のみ">
+<input inputmode="email" type="text" placeholder="メールアドレス">
+<input inputmode="url" type="text" placeholder="URL">
+```
+
+### `enterkeyhint`属性
+
+モバイルキーボードのEnterキーの表示を制御します。
+
+```html
+<input enterkeyhint="search" type="search" placeholder="検索">
+<input enterkeyhint="done" type="text" placeholder="完了">
+<input enterkeyhint="send" type="text" placeholder="送信">
+```
+
+## インラインエディティング
+
+`contenteditable`属性を使用すると、任意の要素を編集可能にできます。
+
+```html
+<div contenteditable="true">
+  このテキストは編集可能です
+</div>
+```
+
+<Tip>
+セキュリティ上の理由から、`contenteditable`を使用する際は、入力値のサニタイズを忘れずに行ってください。
+</Tip>
+
+## アクセシビリティの改善
+
+### `inert`属性
+
+要素とその子孫要素を操作不可能にします。
+
+```html
+<div inert>
+  <button>このボタンは操作できません</button>
+  <input type="text" placeholder="この入力欄も操作できません">
+</div>
+```
+
+## ベストプラクティス
+
+1. 新機能を使用する際は、必ずブラウザのサポート状況を確認してください
+2. 必要に応じてフォールバックを実装してください
+3. アクセシビリティを常に意識してください
+4. パフォーマンスへの影響を考慮してください
+
+<Note>
+これらの新機能は、ブラウザのサポート状況が異なる場合があります。
+実装する際は [Can I use](https://caniuse.com/) で確認することをお勧めします。
+</Note> 
