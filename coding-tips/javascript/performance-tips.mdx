@@ -11,10 +11,12 @@ description: 'アプリケーションのパフォーマンスを向上させる
 
 ```javascript
 // 悪い例：すべてをインポート
-import * as lodash from 'lodash';
+import Swiper from 'swiper';
 
-// 良い例：必要な関数のみをインポート
-import { debounce } from 'lodash-es';
+// 良い例：必要なモジュールのみをインポート
+import { Navigation, Pagination } from 'swiper/modules';
+import Swiper from 'swiper/core';
+import 'swiper/css';
 ```
 
 ### 動的インポート

@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Luminus Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1653a3",
+    "light": "#079bc9",
+    "dark": "#154380"
   },
   "favicon": "/favicon.svg",
   "fonts": {
@@ -112,21 +112,8 @@
     }
   },
   "logo": {
-    "light": "/logo/icon.jpg",
-    "dark": "/logo/icon.jpg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    "light": "/logo/icon-round.webp",
+    "dark": "/logo/icon-round.webp"
   },
   "footer": {
     "socials": {
