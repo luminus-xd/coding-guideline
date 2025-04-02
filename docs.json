@@ -112,8 +112,8 @@
     }
   },
   "logo": {
-    "light": "/logo/icon-round.webp",
-    "dark": "/logo/icon-round.webp"
+    "light": "/logo/icon.webp",
+    "dark": "/logo/icon.webp"
   },
   "footer": {
     "socials": {
