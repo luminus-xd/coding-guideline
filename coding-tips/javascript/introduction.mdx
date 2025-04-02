@@ -1,0 +1,80 @@
+---
+title: 'JS/TS 入門ガイド'
+description: 'モダンJSとTSの基本と効果的な使用法'
+---
+
+## はじめに
+
+JavaScript (JS) とTypeScript (TS) は現代のWeb開発において不可欠です。  
+JavaScriptはブラウザで直接実行でき、TypeScriptはJavaScriptに静的型付けを追加した言語になっています。
+
+このガイドでは、両言語を効果的に使用するためのベストプラクティスを紹介します。
+
+## 基本原則
+
+### シンプルさを保つ
+
+```javascript
+// 複雑な実装
+const calculateTotal = (items) => {
+  let result = 0;
+  for (let i = 0; i < items.length; i++) {
+    result += items[i].price * items[i].quantity;
+  }
+  return result;
+};
+
+// シンプルな実装
+const calculateTotal = (items) => 
+  items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+```
+
+### 再利用性を高める
+
+```javascript
+// 特定の目的のみに使える関数
+function filterAdultUsers(users) {
+  const adults = [];
+  for (let i = 0; i < users.length; i++) {
+    if (users[i].age >= 20) {
+      adults.push(users[i]);
+    }
+  }
+  return adults;
+}
+
+// 汎用的なフィルター関数
+function filterData(items, predicate) {
+  return items.filter(predicate);
+}
+
+const isAdult = user => user.age >= 20;
+const adultUsers = filterData(users, isAdult);
+```
+
+## 関連ガイド
+
+<CardGroup>
+    <Card title="パフォーマンス最適化" icon="bolt" href="/coding-tips/javascript/performance-tips">
+        JavaScriptアプリケーションのパフォーマンスを向上させるためのベストプラクティスを学びます。
+    </Card>
+    <Card title="TypeScriptエッセンシャル" icon="code" href="/coding-tips/javascript/typescript-essentials">
+        TypeScriptの重要な機能と型システムを最大限に活用する方法を学びます。
+    </Card>
+</CardGroup>
+
+## 公式ドキュメント
+
+最新の情報と詳細な仕様については、以下の公式ドキュメントを参照してください：
+
+<CardGroup>
+    <Card title="MDN Web Docs" icon="js" href="https://developer.mozilla.org/ja/docs/Web/JavaScript">
+        JavaScriptの包括的なリファレンスとガイド
+    </Card>
+    <Card title="TypeScript公式" icon="code" href="https://www.typescriptlang.org/ja/">
+        TypeScriptの公式ドキュメントとチュートリアル
+    </Card>
+    <Card title="ECMAScript仕様" icon="book" href="https://tc39.es/ecma262/">
+        JavaScriptの言語仕様
+    </Card>
+</CardGroup>

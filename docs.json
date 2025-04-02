@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Luminus Docs",
   "colors": {
     "primary": "#16A34A",
@@ -9,7 +9,18 @@
   },
   "favicon": "/favicon.svg",
   "fonts": {
-    "family": "Inter"
+    "heading": {
+      "family": "Mobo",
+      "source": "https://fonts.luminus.dev/mobo-bold.woff2",
+      "format": "woff2",
+      "weight": 700
+    },
+    "body": {
+      "family": "Mobo",
+      "source": "https://fonts.luminus.dev/mobo-regular.woff2",
+      "format": "woff2",
+      "weight": 400
+    }
   },
   "navigation": {
     "tabs": [
@@ -39,6 +50,7 @@
           {
             "group": "JavaScript",
             "pages": [
+              "coding-tips/javascript/introduction",
               "coding-tips/javascript/typescript-essentials",
               "coding-tips/javascript/performance-tips"
             ]

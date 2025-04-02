@@ -1,7 +1,7 @@
 {
-  "name": "coding-guideline",
+  "name": "docs",
   "version": "1.0.0",
-  "description": "Luminusのコーディングガイドライン",
+  "description": "Luminusのドキュメント",
   "main": "index.js",
   "scripts": {
     "dev": "mintlify dev"
